@@ -17,10 +17,10 @@
       <a-video id="videoPlane" src="#video1" width="4" height="2.25" position="0 2 -6"></a-video>
 
       <a-image src="#playIcon" width="0.5" height="0.5" position="-1 0.5 -6"
-               toggle-video="#video1" class="clickable" cursor-listener></a-image>
+               toggle-video="#video1" class="clickable"></a-image>
 
       <a-image src="#pauseIcon" width="0.5" height="0.5" position="1 0.5 -6"
-               toggle-video="#video1" class="clickable" cursor-listener></a-image>
+               toggle-video="#video1" class="clickable"></a-image>
 
       <a-plane id="startButton" position="0 0 -2" width="2" height="1" color="#000"
                start-experience cursor-listener>
@@ -41,7 +41,7 @@
           startButton.addEventListener('mousedown', () => {
             const videoElement = document.querySelector('#video1');
             videoElement.play();
-            videoElement.pause(); // Pausamos el video para que el primer fotograma sea visible
+            videoElement.pause();
 
             startButton.setAttribute('visible', 'false');
             cursor.setAttribute('raycaster', 'objects: .clickable');
@@ -52,16 +52,20 @@
       AFRAME.registerComponent('toggle-video', {
         schema: { type: 'selector' },
         init: function () {
-          const video = document.querySelector(this.data);
-          if (!video) return; // Salir si el video no se encuentra
+          const videoElement = this.data; // A-Frame nos da el elemento directamente
+
+          if (!videoElement) {
+              console.error('El elemento de video no fue encontrado.');
+              return;
+          }
 
           this.el.addEventListener('mousedown', () => {
-            if (video.paused) {
-              video.play();
-              console.log('Video está reproduciéndose');
+            if (videoElement.paused) {
+              videoElement.play();
+              console.log('Reproduciendo video');
             } else {
-              video.pause();
-              console.log('Video está en pausa');
+              videoElement.pause();
+              console.log('Pausando video');
             }
           });
         }
