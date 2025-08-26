@@ -10,7 +10,6 @@
       <a-assets>
         <video id="video1" src="https://cdn.glitch.global/baba4c61-826f-45ac-a323-fe2c876dd575/Cruzaframe.mp4"
                crossorigin="anonymous" preload="metadata" playsinline></video>
-
         <img id="playIcon" src="https://cdn-icons-png.flaticon.com/256/109/109197.png" crossorigin="anonymous">
         <img id="pauseIcon" src="https://cdn-icons-png.flaticon.com/256/61/61180.png" crossorigin="anonymous">
       </a-assets>
@@ -19,17 +18,31 @@
 
       <a-image src="#playIcon" width="0.5" height="0.5" position="-1 0.5 -6"
                play-video="#video1" class="clickable" cursor-listener></a-image>
-
       <a-image src="#pauseIcon" width="0.5" height="0.5" position="1 0.5 -6"
                pause-video="#video1" class="clickable" cursor-listener></a-image>
 
+      <a-plane id="startButton" position="0 0 -2" width="2" height="1" color="#000"
+               start-experience cursor-listener>
+          <a-text value="Haga clic para iniciar" align="center" position="0 0 0.01" color="#FFF"></a-text>
+      </a-plane>
+
       <a-entity camera look-controls>
-        <a-cursor raycaster="objects: .clickable" fuse="true" fuse-timeout="500"></a-cursor>
+        <a-cursor raycaster="objects: .clickable, #startButton" fuse="true" fuse-timeout="500"></a-cursor>
       </a-entity>
     </a-scene>
 
     <script>
-      // Componente para reproducir video
+      AFRAME.registerComponent('start-experience', {
+        init: function () {
+          const startButton = this.el;
+          startButton.addEventListener('mousedown', () => {
+            const videoElement = document.querySelector('#video1');
+            videoElement.play();
+            startButton.setAttribute('visible', 'false'); // Ocultar el botón después del clic
+          });
+        }
+      });
+
       AFRAME.registerComponent('play-video', {
         schema: { type: 'selector' },
         init: function () {
@@ -42,7 +55,6 @@
         }
       });
 
-      // Componente para pausar video
       AFRAME.registerComponent('pause-video', {
         schema: { type: 'selector' },
         init: function () {
