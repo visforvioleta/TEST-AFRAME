@@ -17,10 +17,10 @@
       <a-video id="videoPlane" src="#video1" width="4" height="2.25" position="0 2 -6"></a-video>
 
       <a-image src="#playIcon" width="0.5" height="0.5" position="-1 0.5 -6"
-               toggle-video="#video1" class="clickable"></a-image>
+               play-video="#video1" class="clickable"></a-image>
 
       <a-image src="#pauseIcon" width="0.5" height="0.5" position="1 0.5 -6"
-               toggle-video="#video1" class="clickable"></a-image>
+               pause-video="#video1" class="clickable"></a-image>
 
       <a-plane id="startButton" position="0 0 -2" width="2" height="1" color="#000"
                start-experience cursor-listener>
@@ -40,33 +40,40 @@
 
           startButton.addEventListener('mousedown', () => {
             const videoElement = document.querySelector('#video1');
-            videoElement.play();
-            videoElement.pause();
-
+            // Cargar el video sin reproducirlo
+            videoElement.load();
             startButton.setAttribute('visible', 'false');
             cursor.setAttribute('raycaster', 'objects: .clickable');
           });
         }
       });
-
-      AFRAME.registerComponent('toggle-video', {
+      
+      AFRAME.registerComponent('play-video', {
         schema: { type: 'selector' },
         init: function () {
-          const videoElement = this.data; // A-Frame nos da el elemento directamente
+          const button = this.el;
+          const videoElement = document.querySelector(this.data);
+          
+          if (!videoElement) return;
+          
+          button.addEventListener('mousedown', () => {
+            console.log('Botón de play presionado');
+            videoElement.play().catch(e => console.error("Error al reproducir el video:", e));
+          });
+        }
+      });
 
-          if (!videoElement) {
-              console.error('El elemento de video no fue encontrado.');
-              return;
-          }
-
-          this.el.addEventListener('mousedown', () => {
-            if (videoElement.paused) {
-              videoElement.play();
-              console.log('Reproduciendo video');
-            } else {
-              videoElement.pause();
-              console.log('Pausando video');
-            }
+      AFRAME.registerComponent('pause-video', {
+        schema: { type: 'selector' },
+        init: function () {
+          const button = this.el;
+          const videoElement = document.querySelector(this.data);
+          
+          if (!videoElement) return;
+          
+          button.addEventListener('mousedown', () => {
+            console.log('Botón de pausa presionado');
+            videoElement.pause();
           });
         }
       });
