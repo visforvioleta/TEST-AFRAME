@@ -9,7 +9,7 @@
     <a-scene>
       <a-assets>
         <video id="video1" src="https://cdn.glitch.global/baba4c61-826f-45ac-a323-fe2c876dd575/Cruzaframe.mp4"
-               crossorigin="anonymous" preload="metadata" playsinline></video>
+               crossorigin="anonymous" playsinline></video>
         <img id="playIcon" src="https://cdn-icons-png.flaticon.com/256/109/109197.png" crossorigin="anonymous">
         <img id="pauseIcon" src="https://cdn-icons-png.flaticon.com/256/61/61180.png" crossorigin="anonymous">
       </a-assets>
@@ -17,9 +17,10 @@
       <a-video id="videoPlane" src="#video1" width="4" height="2.25" position="0 2 -6"></a-video>
 
       <a-image src="#playIcon" width="0.5" height="0.5" position="-1 0.5 -6"
-               play-video="#video1" class="clickable" cursor-listener></a-image>
+               toggle-video="#video1" class="clickable" cursor-listener></a-image>
+
       <a-image src="#pauseIcon" width="0.5" height="0.5" position="1 0.5 -6"
-               pause-video="#video1" class="clickable" cursor-listener></a-image>
+               toggle-video="#video1" class="clickable" cursor-listener></a-image>
 
       <a-plane id="startButton" position="0 0 -2" width="2" height="1" color="#000"
                start-experience cursor-listener>
@@ -40,33 +41,27 @@
           startButton.addEventListener('mousedown', () => {
             const videoElement = document.querySelector('#video1');
             videoElement.play();
-            startButton.setAttribute('visible', 'false'); // Ocultar el botón
-            
-            // Reconfigurar el raycaster para que solo interactúe con los botones
+            videoElement.pause(); // Pausamos el video para que el primer fotograma sea visible
+
+            startButton.setAttribute('visible', 'false');
             cursor.setAttribute('raycaster', 'objects: .clickable');
           });
         }
       });
 
-      AFRAME.registerComponent('play-video', {
+      AFRAME.registerComponent('toggle-video', {
         schema: { type: 'selector' },
         init: function () {
-          this.el.addEventListener('mousedown', () => {
-            const video = document.querySelector(this.data);
-            if (video) {
-              video.play();
-            }
-          });
-        }
-      });
+          const video = document.querySelector(this.data);
+          if (!video) return; // Salir si el video no se encuentra
 
-      AFRAME.registerComponent('pause-video', {
-        schema: { type: 'selector' },
-        init: function () {
           this.el.addEventListener('mousedown', () => {
-            const video = document.querySelector(this.data);
-            if (video) {
+            if (video.paused) {
+              video.play();
+              console.log('Video está reproduciéndose');
+            } else {
               video.pause();
+              console.log('Video está en pausa');
             }
           });
         }
