@@ -40,7 +40,6 @@
 
           startButton.addEventListener('mousedown', () => {
             const videoElement = document.querySelector('#video1');
-            // Cargar el video sin reproducirlo
             videoElement.load();
             startButton.setAttribute('visible', 'false');
             cursor.setAttribute('raycaster', 'objects: .clickable');
@@ -52,7 +51,7 @@
         schema: { type: 'selector' },
         init: function () {
           const button = this.el;
-          const videoElement = document.querySelector(this.data);
+          const videoElement = this.data; // Corrected line
           
           if (!videoElement) return;
           
@@ -67,7 +66,7 @@
         schema: { type: 'selector' },
         init: function () {
           const button = this.el;
-          const videoElement = document.querySelector(this.data);
+          const videoElement = this.data; // Corrected line
           
           if (!videoElement) return;
           
