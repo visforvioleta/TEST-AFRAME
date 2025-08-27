@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Prueba A-Frame Video (1 plane)</title>
+  <title>Prueba A-Frame Video (3 planes)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 </head>
@@ -10,61 +10,49 @@
   <a-scene>
     <a-assets>
       <!-- Show first frame, no autoplay, no loop, sound will start on click -->
-      <video id="video1"
-             src="./assets/prueba.mp4"
-             preload="metadata"
-             playsinline
-             crossorigin="anonymous"></video>
+      <video id="video1" src="./assets/video1.mp4" preload="metadata" playsinline crossorigin="anonymous"></video>
+      <video id="video2" src="./assets/video2.mp4" preload="metadata" playsinline crossorigin="anonymous"></video>
+      <video id="video3" src="./assets/video3.mp4" preload="metadata" playsinline crossorigin="anonymous"></video>
 
-      <!-- Your button images -->
+      <!-- Button images -->
       <img id="playIcon"  src="./assets/playbuton.png">
       <img id="pauseIcon" src="./assets/pausebuton.png">
     </a-assets>
 
-    <!-- The floating video plane -->
-    <a-video id="videoPlane"
-             src="#video1"
-             width="4" height="2.25"
-             position="0 2 -6">
-    </a-video>
+    <!-- Video Plane 1 -->
+    <a-video id="plane1" src="#video1" width="4" height="2.25" position="-5 2 -6"></a-video>
+    <a-image id="play1"  src="#playIcon"  width="0.6" height="0.6" position="-6 0.5 -6" class="clickable"></a-image>
+    <a-image id="pause1" src="#pauseIcon" width="0.6" height="0.6" position="-4 0.5 -6" class="clickable"></a-image>
 
-    <!-- Play / Pause buttons (3D images) -->
-    <a-image id="btnPlay"
-             src="#playIcon"
-             width="0.6" height="0.6"
-             position="-1 0.5 -6"
-             class="clickable">
-    </a-image>
+    <!-- Video Plane 2 -->
+    <a-video id="plane2" src="#video2" width="4" height="2.25" position="0 2 -6"></a-video>
+    <a-image id="play2"  src="#playIcon"  width="0.6" height="0.6" position="-1 0.5 -6" class="clickable"></a-image>
+    <a-image id="pause2" src="#pauseIcon" width="0.6" height="0.6" position="1 0.5 -6" class="clickable"></a-image>
 
-    <a-image id="btnPause"
-             src="#pauseIcon"
-             width="0.6" height="0.6"
-             position="1 0.5 -6"
-             class="clickable">
-    </a-image>
+    <!-- Video Plane 3 -->
+    <a-video id="plane3" src="#video3" width="4" height="2.25" position="5 2 -6"></a-video>
+    <a-image id="play3"  src="#playIcon"  width="0.6" height="0.6" position="4 0.5 -6" class="clickable"></a-image>
+    <a-image id="pause3" src="#pauseIcon" width="0.6" height="0.6" position="6 0.5 -6" class="clickable"></a-image>
 
-    <!-- Camera + cursor: use MOUSE, no fuse, and raycast ONLY clickable things -->
+    <!-- Camera + cursor (mouse raycasting) -->
     <a-entity camera look-controls>
       <a-cursor></a-cursor>
     </a-entity>
-    <a-entity
-      cursor="rayOrigin: mouse"
-      raycaster="objects: .clickable">
-    </a-entity>
+    <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
 
-    <!-- (Optional) Background so you can see things clearly -->
+    <!-- Background -->
     <a-sky color="#202428"></a-sky>
   </a-scene>
 
   <script>
-    // Components that work inside A-Frame (reliable in desktop/VR)
+    // Reusable A-Frame components
     AFRAME.registerComponent('play-video', {
       schema: { type: 'selector' },
       init: function () {
         const video = this.data;
         this.el.addEventListener('click', () => {
           if (!video) return;
-          video.volume = 0.5; // mid-level audio as requested
+          video.volume = 0.5; // mid-level volume
           video.play().catch(err => console.warn('Play blocked:', err));
         });
       }
@@ -81,12 +69,16 @@
       }
     });
 
-    // Attach components with your selector to ensure A-Frame handles clicks
+    // Attach play/pause behavior once DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btnPlay')
-        .setAttribute('play-video', '#video1');
-      document.getElementById('btnPause')
-        .setAttribute('pause-video', '#video1');
+      document.getElementById('play1').setAttribute('play-video', '#video1');
+      document.getElementById('pause1').setAttribute('pause-video', '#video1');
+
+      document.getElementById('play2').setAttribute('play-video', '#video2');
+      document.getElementById('pause2').setAttribute('pause-video', '#video2');
+
+      document.getElementById('play3').setAttribute('play-video', '#video3');
+      document.getElementById('pause3').setAttribute('pause-video', '#video3');
     });
   </script>
 </body>
