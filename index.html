@@ -2,89 +2,61 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Prueba Aframe Video</title>
+    <title>A-Frame Video Test</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   </head>
   <body>
     <a-scene>
       <a-assets>
-        <video id="video1" src="./assets/prueba.mp4" playsinline></video>
+        <!-- Preload first frame, no autoplay -->
+        <video id="video1" src="./assets/prueba.mp4" crossorigin="anonymous" preload="metadata" playsinline></video>
         <img id="playIcon" src="./assets/playbuton.png">
         <img id="pauseIcon" src="./assets/pausebuton.png">
       </a-assets>
 
+      <!-- Video plane -->
       <a-video id="videoPlane" src="#video1" width="4" height="2.25" position="0 2 -6"></a-video>
 
-      <a-image src="#playIcon" width="0.5" height="0.5" position="-1 0.5 -6"
-               play-video="#video1" class="clickable"></a-image>
+      <!-- Play button -->
+      <a-image id="btnPlay" src="#playIcon" width="0.5" height="0.5" position="-1 0.5 -6"
+               visible="false"></a-image>
 
-      <a-image src="#pauseIcon" width="0.5" height="0.5" position="1 0.5 -6"
-               pause-video="#video1" class="clickable"></a-image>
+      <!-- Pause button -->
+      <a-image id="btnPause" src="#pauseIcon" width="0.5" height="0.5" position="1 0.5 -6"
+               visible="false"></a-image>
 
-      <a-plane id="startButton" position="0 0 -2" width="2" height="1" color="#000"
-               start-experience cursor-listener>
-          <a-text value="Haga clic para iniciar" align="center" position="0 0 0.01" color="#FFF"></a-text>
+      <!-- Start experience plane -->
+      <a-plane id="startButton" position="0 0 -2" width="2" height="1" color="#000">
+        <a-text value="Haga clic para iniciar" align="center" position="0 0 0.01" color="#FFF"></a-text>
       </a-plane>
 
+      <!-- Camera + cursor -->
       <a-entity camera look-controls>
-        <a-cursor raycaster="objects: #startButton" fuse="true" fuse-timeout="500"></a-cursor>
+        <a-cursor fuse="true" fuse-timeout="500"></a-cursor>
       </a-entity>
     </a-scene>
 
-
     <script>
-      AFRAME.registerComponent('start-experience', {
-        init: function () {
-          var sceneEl = this.el.sceneEl;
-          var startButton = this.el;
+      const videoEl = document.querySelector('#video1');
+      const startButton = document.querySelector('#startButton');
+      const playBtn = document.querySelector('#btnPlay');
+      const pauseBtn = document.querySelector('#btnPause');
 
-          startButton.addEventListener('click', function () {
-            // Ocultar el botón de inicio
-            startButton.setAttribute('visible', 'false');
-
-            // Mostrar los controles de video
-            var playButton = document.querySelector('[play-video]');
-            var pauseButton = document.querySelector('[pause-video]');
-            playButton.setAttribute('visible', 'true');
-            pauseButton.setAttribute('visible', 'true');
-
-            // Iniciar el video automáticamente
-            var videoEl = document.querySelector('#video1');
-            videoEl.play();
-          });
-        }
+      // User must click this first to unlock video
+      startButton.addEventListener('click', () => {
+        startButton.setAttribute('visible', 'false');
+        playBtn.setAttribute('visible', 'true');
+        pauseBtn.setAttribute('visible', 'true');
+        // Play right away, this click is a trusted gesture
+        videoEl.play().catch(err => console.log("Video play blocked:", err));
       });
 
-      AFRAME.registerComponent('play-video', {
-        schema: { type: 'selector' },
-        init: function () {
-          var videoEl = this.data;
-          this.el.addEventListener('click', function () {
-            if (videoEl.paused) {
-              videoEl.play();
-            }
-          });
-        }
+      playBtn.addEventListener('click', () => {
+        videoEl.play();
       });
 
-      AFRAME.registerComponent('pause-video', {
-        schema: { type: 'selector' },
-        init: function () {
-          var videoEl = this.data;
-          this.el.addEventListener('click', function () {
-            if (!videoEl.paused) {
-              videoEl.pause();
-            }
-          });
-        }
-      });
-
-      AFRAME.registerComponent('cursor-listener', {
-        init: function () {
-          this.el.addEventListener('click', function (evt) {
-            console.log('Element clicked:', evt.target);
-          });
-        }
+      pauseBtn.addEventListener('click', () => {
+        videoEl.pause();
       });
     </script>
   </body>
