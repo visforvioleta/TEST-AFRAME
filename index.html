@@ -1,93 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Prueba A-Frame Video (1 plane)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiple Videos with Controls</title>
+  <style>
+    .video-container {
+      position: relative;
+      display: inline-block;
+      margin: 1rem;
+    }
+
+    video {
+      width: 320px;
+      height: auto;
+      background: black;
+      display: block;
+    }
+
+    .play-pause-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .play-pause-btn.hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <a-scene>
-    <a-assets>
-      <!-- Show first frame, no autoplay, no loop, sound will start on click -->
-      <video id="video1"
-             src="./assets/prueba.mp4"
-             preload="metadata"
-             playsinline
-             crossorigin="anonymous"></video>
+  <div class="video-container">
+    <video id="video1" src="assets/video1.mp4" preload="metadata"></video>
+    <button id="btn1" class="play-pause-btn">▶</button>
+  </div>
 
-      <!-- Your button images -->
-      <img id="playIcon"  src="./assets/playbuton.png">
-      <img id="pauseIcon" src="./assets/pausebuton.png">
-    </a-assets>
+  <div class="video-container">
+    <video id="video2" src="assets/video2.mp4" preload="metadata"></video>
+    <button id="btn2" class="play-pause-btn">▶</button>
+  </div>
 
-    <!-- The floating video plane -->
-    <a-video id="videoPlane"
-             src="#video1"
-             width="4" height="2.25"
-             position="0 2 -6">
-    </a-video>
-
-    <!-- Play / Pause buttons (3D images) -->
-    <a-image id="btnPlay"
-             src="#playIcon"
-             width="0.6" height="0.6"
-             position="-1 0.5 -6"
-             class="clickable">
-    </a-image>
-
-    <a-image id="btnPause"
-             src="#pauseIcon"
-             width="0.6" height="0.6"
-             position="1 0.5 -6"
-             class="clickable">
-    </a-image>
-
-    <!-- Camera + cursor: use MOUSE, no fuse, and raycast ONLY clickable things -->
-    <a-entity camera look-controls>
-      <a-cursor></a-cursor>
-    </a-entity>
-    <a-entity
-      cursor="rayOrigin: mouse"
-      raycaster="objects: .clickable">
-    </a-entity>
-
-    <!-- (Optional) Background so you can see things clearly -->
-    <a-sky color="#202428"></a-sky>
-  </a-scene>
+  <div class="video-container">
+    <video id="video3" src="assets/video3.mp4" preload="metadata"></video>
+    <button id="btn3" class="play-pause-btn">▶</button>
+  </div>
 
   <script>
-    // Components that work inside A-Frame (reliable in desktop/VR)
-    AFRAME.registerComponent('play-video', {
-      schema: { type: 'selector' },
-      init: function () {
-        const video = this.data;
-        this.el.addEventListener('click', () => {
-          if (!video) return;
-          video.volume = 0.5; // mid-level audio as requested
-          video.play().catch(err => console.warn('Play blocked:', err));
-        });
-      }
-    });
+    function setupVideo(videoId, btnId) {
+      const video = document.getElementById(videoId);
+      const button = document.getElementById(btnId);
 
-    AFRAME.registerComponent('pause-video', {
-      schema: { type: 'selector' },
-      init: function () {
-        const video = this.data;
-        this.el.addEventListener('click', () => {
-          if (!video) return;
+      // Para mostrar el primer frame sin autoplay ni mute
+      video.currentTime = 0;
+
+      button.addEventListener("click", () => {
+        if (video.paused || video.ended) {
+          // Pausar cualquier otro video antes de reproducir este
+          document.querySelectorAll("video").forEach(v => {
+            if (v !== video) {
+              v.pause();
+              v.nextElementSibling.textContent = "▶"; // reset botón
+              v.nextElementSibling.classList.remove("hidden");
+            }
+          });
+
+          video.play().then(() => {
+            button.textContent = "⏸";
+          }).catch(err => {
+            console.error("Error al reproducir:", err);
+          });
+        } else {
           video.pause();
-        });
-      }
-    });
+          button.textContent = "▶";
+        }
+      });
 
-    // Attach components with your selector to ensure A-Frame handles clicks
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btnPlay')
-        .setAttribute('play-video', '#video1');
-      document.getElementById('btnPause')
-        .setAttribute('pause-video', '#video1');
-    });
+      // Si termina, volvemos el botón a "play"
+      video.addEventListener("ended", () => {
+        button.textContent = "▶";
+        video.currentTime = 0; // vuelve al inicio
+      });
+    }
+
+    // Inicializamos cada video
+    setupVideo("video1", "btn1");
+    setupVideo("video2", "btn2");
+    setupVideo("video3", "btn3");
   </script>
 </body>
 </html>
