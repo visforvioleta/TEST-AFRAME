@@ -1,83 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Player Test</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #111;
-    }
-    .video-container {
-      position: relative;
-      width: 640px;
-      max-width: 100%;
-    }
-    video {
-      width: 100%;
-      display: block;
-      background: black;
-    }
-    .controls {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 10px;
-    }
-    .controls button {
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 6px;
-    }
-    .controls button:hover {
-      background: rgba(255,255,255,0.3);
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Prueba A-Frame Video (1 plane)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 </head>
 <body>
-  <div class="video-container">
-    <video id="myVideo" preload="auto" poster="">
-      <source src="your-video.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <div class="controls">
-      <button id="playBtn">Play</button>
-      <button id="pauseBtn">Pause</button>
-    </div>
-  </div>
+  <a-scene>
+    <a-assets>
+      <!-- Show first frame, no autoplay, no loop, sound will start on click -->
+      <video id="video1"
+             src="./assets/prueba.mp4"
+             preload="metadata"
+             playsinline
+             crossorigin="anonymous"></video>
+
+      <!-- Your button images -->
+      <img id="playIcon"  src="./assets/playbuton.png">
+      <img id="pauseIcon" src="./assets/pausebuton.png">
+    </a-assets>
+
+    <!-- The floating video plane -->
+    <a-video id="videoPlane"
+             src="#video1"
+             width="4" height="2.25"
+             position="0 2 -6">
+    </a-video>
+
+    <!-- Play / Pause buttons (3D images) -->
+    <a-image id="btnPlay"
+             src="#playIcon"
+             width="0.6" height="0.6"
+             position="-1 0.5 -6"
+             class="clickable">
+    </a-image>
+
+    <a-image id="btnPause"
+             src="#pauseIcon"
+             width="0.6" height="0.6"
+             position="1 0.5 -6"
+             class="clickable">
+    </a-image>
+
+    <!-- Camera + cursor: use MOUSE, no fuse, and raycast ONLY clickable things -->
+    <a-entity camera look-controls>
+      <a-cursor></a-cursor>
+    </a-entity>
+    <a-entity
+      cursor="rayOrigin: mouse"
+      raycaster="objects: .clickable">
+    </a-entity>
+
+    <!-- (Optional) Background so you can see things clearly -->
+    <a-sky color="#202428"></a-sky>
+  </a-scene>
 
   <script>
-    const video = document.getElementById('myVideo');
-    const playBtn = document.getElementById('playBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-
-    // Ensure video starts paused, with volume at mid-level
-    video.volume = 0.5;
-    video.pause();
-
-    // Play button (starts with sound)
-    playBtn.addEventListener('click', () => {
-      video.play().catch(err => console.log("Playback error:", err));
+    // Components that work inside A-Frame (reliable in desktop/VR)
+    AFRAME.registerComponent('play-video', {
+      schema: { type: 'selector' },
+      init: function () {
+        const video = this.data;
+        this.el.addEventListener('click', () => {
+          if (!video) return;
+          video.volume = 0.5; // mid-level audio as requested
+          video.play().catch(err => console.warn('Play blocked:', err));
+        });
+      }
     });
 
-    // Pause button
-    pauseBtn.addEventListener('click', () => {
-      video.pause();
+    AFRAME.registerComponent('pause-video', {
+      schema: { type: 'selector' },
+      init: function () {
+        const video = this.data;
+        this.el.addEventListener('click', () => {
+          if (!video) return;
+          video.pause();
+        });
+      }
     });
 
-    // When video ends, stay at last frame (no loop)
-    video.addEventListener('ended', () => {
-      console.log("Video finished, waiting for user to play again");
+    // Attach components with your selector to ensure A-Frame handles clicks
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnPlay')
+        .setAttribute('play-video', '#video1');
+      document.getElementById('btnPause')
+        .setAttribute('pause-video', '#video1');
     });
   </script>
 </body>
