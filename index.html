@@ -8,10 +8,9 @@
   <body>
     <a-scene>
       <a-assets>
-        <video id="video1" src="./assets/prueba.mp4"
-               crossorigin="anonymous" playsinline></video>
-        <img id="playIcon" src="./assets/playbuton.png" crossorigin="anonymous">
-        <img id="pauseIcon" src="./assets/pausebuton.png" crossorigin="anonymous">
+        <video id="video1" src="./assets/prueba.mp4" playsinline></video>
+        <img id="playIcon" src="./assets/playbuton.png">
+        <img id="pauseIcon" src="./assets/pausebuton.png">
       </a-assets>
 
       <a-video id="videoPlane" src="#video1" width="4" height="2.25" position="0 2 -6"></a-video>
@@ -51,12 +50,11 @@
         schema: { type: 'selector' },
         init: function () {
           const button = this.el;
-          const videoElement = this.data; // Corrected line
+          const videoElement = this.data; // ¡Esta es la corrección!
           
           if (!videoElement) return;
           
           button.addEventListener('mousedown', () => {
-            console.log('Botón de play presionado');
             videoElement.play().catch(e => console.error("Error al reproducir el video:", e));
           });
         }
@@ -66,12 +64,11 @@
         schema: { type: 'selector' },
         init: function () {
           const button = this.el;
-          const videoElement = this.data; // Corrected line
+          const videoElement = this.data; // ¡Esta es la corrección!
           
           if (!videoElement) return;
           
           button.addEventListener('mousedown', () => {
-            console.log('Botón de pausa presionado');
             videoElement.pause();
           });
         }
