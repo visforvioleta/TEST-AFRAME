@@ -1,63 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>A-Frame Video Test</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  </head>
-  <body>
-    <a-scene>
-      <a-assets>
-        <!-- Preload first frame, no autoplay -->
-        <video id="video1" src="./assets/prueba.mp4" crossorigin="anonymous" preload="metadata" playsinline></video>
-        <img id="playIcon" src="./assets/playbuton.png">
-        <img id="pauseIcon" src="./assets/pausebuton.png">
-      </a-assets>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Player Test</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+    }
+    .video-container {
+      position: relative;
+      width: 640px;
+      max-width: 100%;
+    }
+    video {
+      width: 100%;
+      display: block;
+      background: black;
+    }
+    .controls {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+    .controls button {
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+    .controls button:hover {
+      background: rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="video-container">
+    <video id="myVideo" preload="auto" poster="">
+      <source src="your-video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="controls">
+      <button id="playBtn">Play</button>
+      <button id="pauseBtn">Pause</button>
+    </div>
+  </div>
 
-      <!-- Video plane -->
-      <a-video id="videoPlane" src="#video1" width="4" height="2.25" position="0 2 -6"></a-video>
+  <script>
+    const video = document.getElementById('myVideo');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
 
-      <!-- Play button -->
-      <a-image id="btnPlay" src="#playIcon" width="0.5" height="0.5" position="-1 0.5 -6"
-               visible="false"></a-image>
+    // Ensure video starts paused, with volume at mid-level
+    video.volume = 0.5;
+    video.pause();
 
-      <!-- Pause button -->
-      <a-image id="btnPause" src="#pauseIcon" width="0.5" height="0.5" position="1 0.5 -6"
-               visible="false"></a-image>
+    // Play button (starts with sound)
+    playBtn.addEventListener('click', () => {
+      video.play().catch(err => console.log("Playback error:", err));
+    });
 
-      <!-- Start experience plane -->
-      <a-plane id="startButton" position="0 0 -2" width="2" height="1" color="#000">
-        <a-text value="Haga clic para iniciar" align="center" position="0 0 0.01" color="#FFF"></a-text>
-      </a-plane>
+    // Pause button
+    pauseBtn.addEventListener('click', () => {
+      video.pause();
+    });
 
-      <!-- Camera + cursor -->
-      <a-entity camera look-controls>
-        <a-cursor fuse="true" fuse-timeout="500"></a-cursor>
-      </a-entity>
-    </a-scene>
-
-    <script>
-      const videoEl = document.querySelector('#video1');
-      const startButton = document.querySelector('#startButton');
-      const playBtn = document.querySelector('#btnPlay');
-      const pauseBtn = document.querySelector('#btnPause');
-
-      // User must click this first to unlock video
-      startButton.addEventListener('click', () => {
-        startButton.setAttribute('visible', 'false');
-        playBtn.setAttribute('visible', 'true');
-        pauseBtn.setAttribute('visible', 'true');
-        // Play right away, this click is a trusted gesture
-        videoEl.play().catch(err => console.log("Video play blocked:", err));
-      });
-
-      playBtn.addEventListener('click', () => {
-        videoEl.play();
-      });
-
-      pauseBtn.addEventListener('click', () => {
-        videoEl.pause();
-      });
-    </script>
-  </body>
+    // When video ends, stay at last frame (no loop)
+    video.addEventListener('ended', () => {
+      console.log("Video finished, waiting for user to play again");
+    });
+  </script>
+</body>
 </html>
