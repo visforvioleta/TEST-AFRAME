@@ -31,31 +31,38 @@
       </a-entity>
     </a-scene>
 
+
     <script>
       AFRAME.registerComponent('start-experience', {
         init: function () {
-          const startButton = this.el;
-          const cursor = document.querySelector('a-cursor');
+          var sceneEl = this.el.sceneEl;
+          var startButton = this.el;
 
-          startButton.addEventListener('mousedown', () => {
-            const videoElement = document.querySelector('#video1');
-            videoElement.load();
+          startButton.addEventListener('click', function () {
+            // Ocultar el botón de inicio
             startButton.setAttribute('visible', 'false');
-            cursor.setAttribute('raycaster', 'objects: .clickable');
+
+            // Mostrar los controles de video
+            var playButton = document.querySelector('[play-video]');
+            var pauseButton = document.querySelector('[pause-video]');
+            playButton.setAttribute('visible', 'true');
+            pauseButton.setAttribute('visible', 'true');
+
+            // Iniciar el video automáticamente
+            var videoEl = document.querySelector('#video1');
+            videoEl.play();
           });
         }
       });
-      
+
       AFRAME.registerComponent('play-video', {
         schema: { type: 'selector' },
         init: function () {
-          const button = this.el;
-          const videoElement = this.data; // ¡Esta es la corrección!
-          
-          if (!videoElement) return;
-          
-          button.addEventListener('mousedown', () => {
-            videoElement.play().catch(e => console.error("Error al reproducir el video:", e));
+          var videoEl = this.data;
+          this.el.addEventListener('click', function () {
+            if (videoEl.paused) {
+              videoEl.play();
+            }
           });
         }
       });
@@ -63,13 +70,19 @@
       AFRAME.registerComponent('pause-video', {
         schema: { type: 'selector' },
         init: function () {
-          const button = this.el;
-          const videoElement = this.data; // ¡Esta es la corrección!
-          
-          if (!videoElement) return;
-          
-          button.addEventListener('mousedown', () => {
-            videoElement.pause();
+          var videoEl = this.data;
+          this.el.addEventListener('click', function () {
+            if (!videoEl.paused) {
+              videoEl.pause();
+            }
+          });
+        }
+      });
+
+      AFRAME.registerComponent('cursor-listener', {
+        init: function () {
+          this.el.addEventListener('click', function (evt) {
+            console.log('Element clicked:', evt.target);
           });
         }
       });
